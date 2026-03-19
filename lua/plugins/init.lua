@@ -133,6 +133,9 @@ return {
 			window = {
 				width = 25,
 				position = "right",
+				mappings = {
+					["<Esc>"] = "close_window",
+				},
 			},
 			close_if_last_window = true,
 			enable_git_status = true,

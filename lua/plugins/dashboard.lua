@@ -36,7 +36,6 @@ return {
 					{ icon = "   ", desc = "SPC fb  Buffers          C-x  Open in split  ", action = "Telescope buffers", key = "b", key_hl = "Number", icon_hl = "Title", desc_hl = "Comment" },
 					{ icon = "   ", desc = "SPC e   File explorer    C-v  Open in vsplit ", action = "Neotree toggle", key = "e", key_hl = "Number", icon_hl = "Title", desc_hl = "Comment" },
 					{ icon = "   ", desc = "SPC fk  All keybindings                     ", action = "Telescope keymaps", key = "k", key_hl = "Number", icon_hl = "Title", desc_hl = "Comment" },
-					{ icon = "   ", desc = "SPC tf  Float term   SPC tv / th  Split term ", action = "lua require('config.terminal').setup() vim.cmd('startinsert')", key = "t", key_hl = "Number", icon_hl = "Title", desc_hl = "Comment" },
 					{ icon = "   ", desc = "New file                                     ", action = "enew", key = "n", key_hl = "Number", icon_hl = "Title", desc_hl = "String" },
 					{ icon = "   ", desc = "Config                                       ", action = "edit ~/.config/nvim/init.lua", key = "c", key_hl = "Number", icon_hl = "Title", desc_hl = "String" },
 					{ icon = "󰩈  ", desc = "Quit                                         ", action = "qa", key = "q", key_hl = "Number", icon_hl = "Title", desc_hl = "String" },

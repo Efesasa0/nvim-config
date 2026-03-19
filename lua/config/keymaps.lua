@@ -58,10 +58,6 @@ vim.keymap.set("n", "<C-j>", "<C-w>j")
 vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
--- Terminal as a split (persistent, for running claude/codex)
-vim.keymap.set("n", "<leader>tv", ":vsplit | terminal<CR>i", { desc = "Terminal in vertical split" })
-vim.keymap.set("n", "<leader>th", ":split | terminal<CR>i", { desc = "Terminal in horizontal split" })
-vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 -- LSP navigation (attached per-buffer when an LSP server connects)
 vim.api.nvim_create_autocmd("LspAttach", {

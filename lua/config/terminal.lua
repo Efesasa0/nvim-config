@@ -68,7 +68,7 @@ end
 
 -- Setup function to create keymaps
 function M.setup()
-  vim.keymap.set("n", "<leader>tf", FloatingTerminal, {
+  vim.keymap.set("n", "<leader>t", FloatingTerminal, {
     noremap = true,
     silent = true,
     desc = "Toggle floating terminal"
