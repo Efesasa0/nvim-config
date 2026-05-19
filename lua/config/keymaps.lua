@@ -17,10 +17,21 @@ vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result (centered)" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result (centered)" })
 
--- Buffer/tab navigation
-vim.keymap.set("n", "<Tab>", ":bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<S-Tab>", ":bprevious<CR>", { desc = "Previous buffer" })
-vim.keymap.set("n", "<leader>x", ":bd<CR>", { desc = "Close buffer" })
+-- Buffer/tab navigation (follows visual tab order in bufferline)
+vim.keymap.set("n", "<C-i>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer (left)" })
+vim.keymap.set("n", "<C-o>", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer (right)" })
+
+-- Close current buffer without closing the window
+vim.keymap.set("n", "<leader>x", function()
+  local cur = vim.api.nvim_get_current_buf()
+  local listed = vim.fn.getbufinfo({ buflisted = 1 })
+  if #listed > 1 then
+    vim.cmd("BufferLineCycleNext")
+  else
+    vim.cmd("enew")
+  end
+  vim.api.nvim_buf_delete(cur, { force = false })
+end, { desc = "Close buffer" })
 
 -- Window navigation
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })

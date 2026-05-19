@@ -11,6 +11,19 @@ return {
 		end,
 	},
 
+	-- Smooth scrolling
+	{
+		"karb94/neoscroll.nvim",
+		config = function()
+			require("neoscroll").setup({
+				mappings = { "<C-u>", "<C-d>", "<C-b>", "<C-f>", "zt", "zz", "zb" },
+				hide_cursor = true,
+				stop_eof = true,
+				easing_function = "sine",
+			})
+		end,
+	},
+
 	-- Bufferline (tab bar for open files)
 	{
 		"akinsho/bufferline.nvim",
@@ -31,20 +44,7 @@ return {
 		},
 	},
 
-	-- Smooth scrolling
-	{
-		"karb94/neoscroll.nvim",
-		config = function()
-			require("neoscroll").setup({
-				mappings = { "<C-u>", "<C-d>", "<C-b>", "<C-f>", "zt", "zz", "zb" },
-				hide_cursor = true,
-				stop_eof = true,
-				easing_function = "sine",
-			})
-		end,
-	},
-
-	-- LaTeX
+-- LaTeX
 	{
 		"lervag/vimtex",
 		lazy = false,
@@ -137,21 +137,46 @@ return {
 					["<Esc>"] = "close_window",
 				},
 			},
+			filesystem = {
+				filtered_items = {
+					visible = true,
+				},
+			},
 			close_if_last_window = true,
 			enable_git_status = true,
 			follow_current_file = { enabled = true },
 		},
 	},
 
-	-- AI code completion
+	-- AI code completion (off by default, toggle with <leader>ai)
 	{
 		"supermaven-inc/supermaven-nvim",
 		config = function()
+			local completion_preview = require("supermaven-nvim.completion_preview")
 			require("supermaven-nvim").setup({
-				keymaps = {
-					accept_suggestion = "<C-a>", -- Ctrl+a to accept (avoids conflict with CMP Tab)
-				},
+				disable_inline_completion = false,
+				disable_keymaps = true,
 			})
+			-- Force stop on startup so nothing runs until explicitly toggled
+			local api = require("supermaven-nvim.api")
+			vim.defer_fn(function()
+				if api.is_running() then
+					api.stop()
+				end
+			end, 100)
+			vim.keymap.set("i", "<C-a>", function()
+				completion_preview.on_accept_suggestion()
+			end, { desc = "Accept Supermaven suggestion" })
+			vim.keymap.set("n", "<leader>ai", function()
+				local sm = require("supermaven-nvim.api")
+				if sm.is_running() then
+					sm.stop()
+					vim.notify("Supermaven OFF", vim.log.levels.WARN)
+				else
+					sm.start()
+					vim.notify("Supermaven ON", vim.log.levels.INFO)
+				end
+			end, { desc = "Toggle Supermaven AI" })
 		end,
 	},
 
@@ -176,7 +201,9 @@ return {
 					vim.env.VIRTUAL_ENV and (vim.env.VIRTUAL_ENV .. "/bin/python") or nil,
 				}
 				for _, path in ipairs(env_python) do
-					if file_exists(path) then return path end
+					if file_exists(path) then
+						return path
+					end
 				end
 
 				-- Fallback to common in-project environments.
@@ -185,19 +212,26 @@ return {
 					root_dir and (root_dir .. "/venv/bin/python") or nil,
 				}
 				for _, path in ipairs(root_python) do
-					if file_exists(path) then return path end
+					if file_exists(path) then
+						return path
+					end
 				end
 
-				if vim.fn.exepath("python") ~= "" then return vim.fn.exepath("python") end
+				if vim.fn.exepath("python") ~= "" then
+					return vim.fn.exepath("python")
+				end
 				return vim.fn.exepath("python3")
 			end
 
 			vim.lsp.config("pyright", {
 				root_dir = function(fname)
-					local markers = { "pyrightconfig.json", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" }
+					local markers =
+						{ "pyrightconfig.json", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" }
 					for _, marker in ipairs(markers) do
 						local root = vim.fs.root(fname, marker)
-						if root then return root end
+						if root then
+							return root
+						end
 					end
 					return vim.fn.fnamemodify(fname, ":h")
 				end,
@@ -246,33 +280,33 @@ return {
 				"--extend-ignore=E203,W503",
 				"-",
 			}
-				lint.linters.mypy = vim.tbl_extend("force", lint.linters.mypy, {
-					args = {
-						"--ignore-missing-imports",
-						"--show-column-numbers",
+			lint.linters.mypy = vim.tbl_extend("force", lint.linters.mypy, {
+				args = {
+					"--ignore-missing-imports",
+					"--show-column-numbers",
 					"--show-error-end",
 					"--hide-error-context",
 					"--no-color-output",
 					"--no-error-summary",
-						"--no-pretty",
-					},
-				})
-				lint.linters.pylint = vim.tbl_extend("force", lint.linters.pylint or {}, {
-					args = {
-						"--disable=import-error",
-						"-f",
-						"json",
-						"--from-stdin",
-						function()
-							return vim.api.nvim_buf_get_name(0)
-						end,
-					},
-				})
-				vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave", "BufEnter" }, {
-					callback = function()
-						lint.try_lint()
+					"--no-pretty",
+				},
+			})
+			lint.linters.pylint = vim.tbl_extend("force", lint.linters.pylint or {}, {
+				args = {
+					"--disable=import-error",
+					"-f",
+					"json",
+					"--from-stdin",
+					function()
+						return vim.api.nvim_buf_get_name(0)
 					end,
-				})
+				},
+			})
+			vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave", "BufEnter" }, {
+				callback = function()
+					lint.try_lint()
+				end,
+			})
 		end,
 	},
 
@@ -292,7 +326,6 @@ return {
 	-- Telescope (fuzzy finder)
 	{
 		"nvim-telescope/telescope.nvim",
-		branch = "0.1.x",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 		},

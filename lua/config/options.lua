@@ -2,10 +2,9 @@
 -- Editor display settings
 
 vim.opt.number = true
-vim.opt.relativenumber = true
+vim.opt.relativenumber = false
 vim.opt.cursorline = true
 vim.opt.signcolumn = "yes"
-vim.opt.colorcolumn = "89,120"
 vim.opt.scrolloff = 8
 vim.opt.smoothscroll = true
 vim.opt.sidescrolloff = 8

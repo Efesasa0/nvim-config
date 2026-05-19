@@ -132,6 +132,33 @@ vim.api.nvim_create_autocmd("BufWritePost", {
   end,
 })
 
+-- PDF: render as plain text via pdftotext (requires: brew install poppler)
+local pdf_group = vim.api.nvim_create_augroup("PDFReader", { clear = true })
+
+vim.api.nvim_create_autocmd("BufReadCmd", {
+  group = pdf_group,
+  pattern = "*.pdf",
+  callback = function(args)
+    local path = vim.fn.fnamemodify(args.file, ":p")
+    local text = vim.fn.system({ "pdftotext", "-layout", "-nopgbrk", path, "-" })
+    if vim.v.shell_error ~= 0 then
+      vim.notify("pdftotext failed — is poppler installed? (brew install poppler)", vim.log.levels.ERROR)
+      return
+    end
+    text = text:gsub("\f", "\n")  -- strip form-feed page breaks
+    local lines = vim.split(text, "\n")
+    local has_text = text:match("%S") ~= nil
+    if not has_text then
+      lines = { "[ This PDF has no extractable text — it is likely a scanned image. ]", "", "[ Use a PDF viewer like Skim or Preview to read it. ]" }
+      vim.notify("Scanned image PDF — no text layer found.", vim.log.levels.WARN)
+    end
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    vim.bo.filetype = "text"
+    vim.bo.modifiable = false
+    vim.bo.modified = false
+  end,
+})
+
 -- Markdown text width constraint
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup,
