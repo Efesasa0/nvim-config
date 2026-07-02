@@ -185,7 +185,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
 	group = augroup,
 	callback = function()
 		vim.opt_local.number = false
-		vim.opt_local.relativenumber = true
+		vim.opt_local.relativenumber = false
 		vim.opt_local.signcolumn = "no"
 	end,
 })
@@ -237,6 +237,10 @@ local function FloatingTerminal()
 		style = "minimal",
 		border = "rounded",
 	})
+
+	vim.wo[terminal_state.win].number = false
+	vim.wo[terminal_state.win].relativenumber = false
+	vim.wo[terminal_state.win].signcolumn = "no"
 
 	local lines = vim.api.nvim_buf_get_lines(terminal_state.buf, 0, -1, false)
 	local has_terminal = false
