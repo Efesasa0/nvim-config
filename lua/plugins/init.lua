@@ -431,4 +431,27 @@ return {
 			vim.g.vimtex_view_method = "skim"
 		end,
 	},
+
+	-- Tab out of quotes and brackets in insert mode
+	{
+		"abecodes/tabout.nvim",
+		event = "InsertCharPre",
+		dependencies = { "nvim-treesitter/nvim-treesitter", "hrsh7th/nvim-cmp" },
+		config = function()
+			require("tabout").setup({
+				tabkey = "<Tab>",
+				backwards_tabkey = "<S-Tab>",
+				act_as_tab = true,
+				completion = true,
+				ignore_beginning = true,
+				tabouts = {
+					{ open = "'", close = "'" },
+					{ open = '"', close = '"' },
+					{ open = "`", close = "`" },
+					{ open = "(", close = ")" },
+					{ open = "[", close = "]" },
+				},
+			})
+		end,
+	},
 }
