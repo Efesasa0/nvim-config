@@ -89,8 +89,8 @@ vim.keymap.set("n", "<leader>x", function()
 	vim.api.nvim_buf_delete(cur, { force = false })
 end, { desc = "Close buffer" })
 
-vim.keymap.set("n", "<leader>vs", ":vsplit<CR>", { desc = "Vertical split" })
-vim.keymap.set("n", "<leader>hs", ":split<CR>", { desc = "Horizontal split" })
+vim.keymap.set("n", "<leader>|", ":vsplit<CR>", { desc = "Vertical split" })
+vim.keymap.set("n", "<leader>-", ":split<CR>", { desc = "Horizontal split" })
 
 -- Window resizes
 vim.keymap.set("n", "<C-Up>", ":resize +2<CR>", { desc = "Increase window height" })
