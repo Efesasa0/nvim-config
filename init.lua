@@ -78,16 +78,7 @@ vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to lower buffer" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to upper buffer" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right buffer" })
 vim.keymap.set("n", "<leader>z", "<:only<CR>", { desc = "Close window" })
-vim.keymap.set("n", "<leader>x", function()
-	local cur = vim.api.nvim_get_current_buf()
-	local listed = vim.fn.getbufinfo({ buflisted = 1 })
-	if #listed > 1 then
-		vim.cmd("bnext")
-	else
-		vim.cmd("enew")
-	end
-	vim.api.nvim_buf_delete(cur, { force = false })
-end, { desc = "Close buffer" })
+vim.keymap.set("n", "<leader>x", "<cmd>close<cr>", { desc = "Close window" })
 
 vim.keymap.set("n", "<leader>|", ":vsplit<CR>", { desc = "Vertical split" })
 vim.keymap.set("n", "<leader>-", ":split<CR>", { desc = "Horizontal split" })
