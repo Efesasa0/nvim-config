@@ -208,7 +208,28 @@ return {
 		build = ":TSUpdate",
 		lazy = false,
 		config = function()
-			require("nvim-treesitter").setup()
+			local ts = require("nvim-treesitter")
+			ts.setup()
+			ts.install({ "python", "bash", "json", "yaml", "toml", "html", "css", "c", "cpp", "rust" })
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = {
+					"python",
+					"bash",
+					"json",
+					"yaml",
+					"toml",
+					"lua",
+					"markdown",
+					"html",
+					"css",
+					"c",
+					"cpp",
+					"rust",
+				},
+				callback = function()
+					pcall(vim.treesitter.start)
+				end,
+			})
 		end,
 	},
 
