@@ -63,8 +63,21 @@ vim.keymap.set("n", "<leader>a", "ggVG", { desc = "Select entire file" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result" })
 vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Toggle file tree" })
+vim.keymap.set("n", "<leader>k", function()
+	local buf, win = vim.diagnostic.open_float(nil, {
+		border = "rounded",
+		scope = "line",
+		max_width = 80,
+		focusable = true,
+	})
+	if win then
+		vim.api.nvim_set_current_win(win)
+		vim.keymap.set("n", "<Esc>", "<cmd>close<cr>", { buffer = buf, nowait = true })
+	end
+end, { desc = "Show diagnostic on line" })
+
 vim.diagnostic.config({
-	virtual_text = { prefix = "●", spacing = 2 },
+	virtual_text = false,
 	float = { border = "rounded" },
 	severity_sort = true,
 })
