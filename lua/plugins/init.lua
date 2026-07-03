@@ -248,10 +248,10 @@ return {
 			end
 
 			local function get_python_path(root_dir)
-				-- prefer active conda/virtualenv
+				-- prefer explicitly activated venv over background conda base env
 				local env_python = {
-					vim.env.CONDA_PREFIX and (vim.env.CONDA_PREFIX .. "/bin/python") or nil,
 					vim.env.VIRTUAL_ENV and (vim.env.VIRTUAL_ENV .. "/bin/python") or nil,
+					vim.env.CONDA_PREFIX and (vim.env.CONDA_PREFIX .. "/bin/python") or nil,
 				}
 				for _, path in ipairs(env_python) do
 					if file_exists(path) then
@@ -272,17 +272,6 @@ return {
 			end
 
 			vim.lsp.config("pyright", {
-				root_dir = function(fname)
-					local markers =
-						{ "pyrightconfig.json", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" }
-					for _, marker in ipairs(markers) do
-						local root = vim.fs.root(fname, marker)
-						if root then
-							return root
-						end
-					end
-					return vim.fn.fnamemodify(fname, ":h")
-				end,
 				before_init = function(_, config)
 					local python = get_python_path(config.root_dir)
 					config.settings = config.settings or {}
@@ -427,9 +416,35 @@ return {
 					end,
 				},
 			})
+			local ruff_cache = {}
+			local function project_uses_ruff(bufnr)
+				local fname = vim.api.nvim_buf_get_name(bufnr)
+				if fname == "" then
+					return false
+				end
+				local pyproject = vim.fs.find("pyproject.toml", {
+					upward = true,
+					path = vim.fs.dirname(fname),
+				})[1]
+				if not pyproject then
+					return false
+				end
+				if ruff_cache[pyproject] ~= nil then
+					return ruff_cache[pyproject]
+				end
+				local ok, lines = pcall(vim.fn.readfile, pyproject)
+				local uses = ok and table.concat(lines, "\n"):match("%[tool%.ruff%]") ~= nil
+				ruff_cache[pyproject] = uses
+				return uses
+			end
+
 			vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave", "BufEnter" }, {
-				callback = function()
-					lint.try_lint()
+				callback = function(args)
+					if vim.bo[args.buf].filetype == "python" and project_uses_ruff(args.buf) then
+						lint.try_lint({ "ruff" })
+					else
+						lint.try_lint()
+					end
 				end,
 			})
 		end,
@@ -440,7 +455,7 @@ return {
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		dependencies = { "williamboman/mason.nvim" },
 		opts = {
-			ensure_installed = { "flake8", "mypy", "pylint" },
+			ensure_installed = { "flake8", "mypy", "pylint", "ruff" },
 		},
 	},
 

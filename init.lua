@@ -63,6 +63,11 @@ vim.keymap.set("n", "<leader>a", "ggVG", { desc = "Select entire file" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result" })
 vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Toggle file tree" })
+vim.diagnostic.config({
+	virtual_text = { prefix = "●", spacing = 2 },
+	float = { border = "rounded" },
+	severity_sort = true,
+})
 
 -- Arrow file bookmarks cycling
 vim.keymap.set("n", "<C-o>", function()
