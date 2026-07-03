@@ -366,7 +366,21 @@ return {
 		opts = {
 			formatters_by_ft = {
 				lua = { "stylua" },
-				python = { "isort", "black" },
+				python = function(bufnr)
+					local fname = vim.api.nvim_buf_get_name(bufnr)
+					if fname ~= "" then
+						local pyproject = vim.fs.find("pyproject.toml", {
+							upward = true, path = vim.fs.dirname(fname),
+						})[1]
+						if pyproject then
+							local ok, lines = pcall(vim.fn.readfile, pyproject)
+							if ok and table.concat(lines, "\n"):match("%[tool%.ruff%]") then
+								return { "ruff_organize_imports", "ruff_format" }
+							end
+						end
+					end
+					return { "isort", "black" }
+				end,
 			},
 			formatters = {
 				black = {
