@@ -112,6 +112,7 @@ vim.keymap.set("n", "<leader>ll", "<cmd>VimtexCompile<cr>", { desc = "Toggle LaT
 
 -- Visual indentation
 vim.keymap.set("v", "<Tab>", ">gv", { desc = "Indent and reselect" })
+vim.keymap.set("v", "<S-Tab>", "<gv", { desc = "Dedent and reselect" })
 
 -- Undo dir
 vim.opt.undodir = vim.fn.expand("~/.vim/undodir")
