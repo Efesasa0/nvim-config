@@ -60,6 +60,12 @@ vim.opt.encoding = "UTF-8"
 -- Keymaps
 vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
 vim.keymap.set("n", "<leader>a", "ggVG", { desc = "Select entire file" })
+vim.keymap.set("n", "<leader><space>", function()
+	local path = vim.fn.expand("%:.")
+	local cwd = vim.fn.getcwd()
+	vim.fn.setreg("+", path)
+	vim.notify("path: " .. path .. "\ncwd:  " .. cwd, vim.log.levels.INFO)
+end, { desc = "Show file path and cwd (copy path)" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result" })
 vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Toggle file tree" })
