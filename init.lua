@@ -160,7 +160,9 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 	end,
 })
 
--- HTML live preview in Safari via live-server (toggle)
+-- HTML live preview via live-server (toggle)
+-- Override browser with: vim.g.html_preview_browser = "Google Chrome" (or "Firefox", "Arc", "Brave Browser", ...)
+vim.g.html_preview_browser = vim.g.html_preview_browser or "Safari"
 local live_server_job = nil
 vim.api.nvim_create_autocmd("FileType", {
 	group = augroup,
@@ -176,6 +178,7 @@ vim.api.nvim_create_autocmd("FileType", {
 			end
 			local dir = vim.fn.expand("%:p:h")
 			local file = vim.fn.expand("%:t")
+			local browser = vim.g.html_preview_browser
 			live_server_job = vim.fn.jobstart({ "live-server", "--no-browser", "--port=5500", dir }, {
 				detach = true,
 				on_exit = function()
@@ -183,10 +186,10 @@ vim.api.nvim_create_autocmd("FileType", {
 				end,
 			})
 			vim.defer_fn(function()
-				vim.fn.jobstart({ "open", "-a", "Safari", "http://localhost:5500/" .. file }, { detach = true })
+				vim.fn.jobstart({ "open", "-a", browser, "http://localhost:5500/" .. file }, { detach = true })
 			end, 400)
-			vim.notify("Live rendering " .. file .. " in Safari")
-		end, { buffer = true, desc = "Toggle HTML live render in Safari" })
+			vim.notify("Live rendering " .. file .. " in " .. browser)
+		end, { buffer = true, desc = "Toggle HTML live render in browser" })
 	end,
 })
 
