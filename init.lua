@@ -160,6 +160,36 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 	end,
 })
 
+-- HTML live preview in Safari via live-server (toggle)
+local live_server_job = nil
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup,
+	pattern = "html",
+	callback = function()
+		vim.keymap.set("n", "<leader>ll", function()
+			if live_server_job then
+				vim.fn.jobstop(live_server_job)
+				vim.fn.system({ "pkill", "-f", "live-server.*--port=5500" })
+				live_server_job = nil
+				vim.notify("Live rendering stopped")
+				return
+			end
+			local dir = vim.fn.expand("%:p:h")
+			local file = vim.fn.expand("%:t")
+			live_server_job = vim.fn.jobstart({ "live-server", "--no-browser", "--port=5500", dir }, {
+				detach = true,
+				on_exit = function()
+					live_server_job = nil
+				end,
+			})
+			vim.defer_fn(function()
+				vim.fn.jobstart({ "open", "-a", "Safari", "http://localhost:5500/" .. file }, { detach = true })
+			end, 400)
+			vim.notify("Live rendering " .. file .. " in Safari")
+		end, { buffer = true, desc = "Toggle HTML live render in Safari" })
+	end,
+})
+
 -- Auto-resize splits when window is resized
 vim.api.nvim_create_autocmd("VimResized", {
 	group = augroup,
