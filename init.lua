@@ -250,6 +250,19 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 
+-- LaTeX text width and wrapping
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup,
+	pattern = "tex",
+	callback = function()
+		vim.opt_local.textwidth = 80
+		vim.opt_local.wrap = true
+		vim.opt_local.linebreak = true
+		vim.opt_local.colorcolumn = "80"
+		vim.opt_local.formatoptions = vim.opt_local.formatoptions + "t"
+	end,
+})
+
 -- Highlight on yank
 vim.api.nvim_create_autocmd("TextYankPost", {
 	group = augroup,
