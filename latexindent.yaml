@@ -1,0 +1,16 @@
+modifyLineBreaks:
+  textWrapOptions:
+    columns: 80
+    blocksFollow:
+      other: '\\begin\{[^}]*\}|\\\]|\\item(?:\h|\[)'
+  specialBeginEnd:
+    displayMathTeX:
+      SpecialBeginStartsOnOwnLine: 1
+      SpecialBodyStartsOnOwnLine: -1
+      SpecialEndStartsOnOwnLine: -1
+      SpecialEndFinishesWithLineBreak: 1
+    displayMath:
+      SpecialBeginStartsOnOwnLine: 1
+      SpecialBodyStartsOnOwnLine: -1
+      SpecialEndStartsOnOwnLine: -1
+      SpecialEndFinishesWithLineBreak: 1

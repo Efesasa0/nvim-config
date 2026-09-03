@@ -295,6 +295,18 @@ return {
 				},
 			})
 
+			local ltex_handlers = require("ltex_handlers")
+			ltex_handlers.setup()
+			local ltex_persisted = ltex_handlers.load_settings()
+			vim.lsp.config("ltex_plus", {
+				settings = {
+					ltex = vim.tbl_extend("keep", {
+						language = "en-US",
+						additionalRules = { enablePickyRules = true },
+					}, ltex_persisted),
+				},
+			})
+
 			require("mason-lspconfig").setup({
 				ensure_installed = {
 					"pyright",
@@ -305,10 +317,21 @@ return {
 					"cssls",
 					"marksman",
 					"texlab",
+					"ltex_plus",
 				},
 			})
 
-			vim.lsp.enable({ "pyright", "lua_ls", "clangd", "rust_analyzer", "html", "cssls", "marksman", "texlab" })
+			vim.lsp.enable({
+				"pyright",
+				"lua_ls",
+				"clangd",
+				"rust_analyzer",
+				"html",
+				"cssls",
+				"marksman",
+				"texlab",
+				"ltex_plus",
+			})
 		end,
 	},
 
@@ -366,12 +389,13 @@ return {
 		opts = {
 			formatters_by_ft = {
 				lua = { "stylua" },
-				tex = { "latexindent" },
+				tex = { "latexindent", "tex_flatten_dispmath" },
 				python = function(bufnr)
 					local fname = vim.api.nvim_buf_get_name(bufnr)
 					if fname ~= "" then
 						local pyproject = vim.fs.find("pyproject.toml", {
-							upward = true, path = vim.fs.dirname(fname),
+							upward = true,
+							path = vim.fs.dirname(fname),
 						})[1]
 						if pyproject then
 							local ok, lines = pcall(vim.fn.readfile, pyproject)
@@ -386,6 +410,18 @@ return {
 			formatters = {
 				black = {
 					prepend_args = { "--line-length", "120" },
+				},
+				latexindent = {
+					prepend_args = { "-m", "-l", vim.fn.stdpath("config") .. "/latexindent.yaml" },
+				},
+				tex_flatten_dispmath = {
+					command = "perl",
+					args = {
+						"-0777",
+						"-pe",
+						[[s{\$\$(.*?)\$\$}{ my $c=$1; $c=~s/\s+/ /g; $c=~s/^\s+|\s+$//g; "\$\$ $c \$\$" }ges]],
+					},
+					stdin = true,
 				},
 			},
 			format_on_save = {

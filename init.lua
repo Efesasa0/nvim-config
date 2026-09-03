@@ -115,6 +115,9 @@ vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase w
 
 -- LaTeX
 vim.keymap.set("n", "<leader>ll", "<cmd>VimtexCompile<cr>", { desc = "Toggle LaTeX live compile (Skim)" })
+vim.keymap.set("n", "<leader>lr", function()
+	require("grammar_mode").toggle()
+end, { desc = "Toggle grammar review mode (ltex-ls)" })
 
 -- Visual indentation
 vim.keymap.set("v", "<Tab>", ">gv", { desc = "Indent and reselect" })
@@ -258,7 +261,6 @@ vim.api.nvim_create_autocmd("FileType", {
 		vim.opt_local.textwidth = 80
 		vim.opt_local.wrap = true
 		vim.opt_local.linebreak = true
-		vim.opt_local.colorcolumn = "80"
 		vim.opt_local.formatoptions = vim.opt_local.formatoptions + "t"
 	end,
 })

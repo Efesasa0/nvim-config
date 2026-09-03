@@ -1,0 +1,52 @@
+INFO:  latexindent.pl version 4.0.2, 2026-06-06, a script to indent .tex files
+       latexindent.pl lives here: /opt/homebrew/Cellar/latexindent/4.0.2/libexec/bin/
+       Sat Aug  8 20:45:51 2026
+       Reading input from STDIN
+INFO:  Processing switches:
+       -l|--localSettings: Read localSettings YAML file
+       -m|--modifylinebreaks: modify line breaks
+INFO:  Directory for backup files and log file indent.log:
+       .
+INFO:  Perl modules are being loaded from the following directories:
+       /opt/homebrew/opt/perl/lib/perl5/5.42/FindBin.pm
+       /opt/homebrew/Cellar/latexindent/4.0.2/libexec/lib/perl5/YAML/Tiny.pm
+       /opt/homebrew/opt/perl/lib/perl5/5.42/File/Copy.pm
+       /opt/homebrew/opt/perl/lib/perl5/5.42/File/Basename.pm
+       /opt/homebrew/opt/perl/lib/perl5/5.42/Getopt/Long.pm
+       /opt/homebrew/Cellar/latexindent/4.0.2/libexec/lib/perl5/File/HomeDir.pm
+INFO:  LatexIndent perl modules are being loaded from, for example:
+       /opt/homebrew/Cellar/latexindent/4.0.2/libexec/lib/perl5/LatexIndent/Document.pm
+INFO:  YAML settings read: defaultSettings.yaml
+       Reading defaultSettings.yaml from /opt/homebrew/Cellar/latexindent/4.0.2/libexec/bin/defaultSettings.yaml
+INFO:  YAML reading settings
+       Home directory is /Users/efesahin
+       latexindent.pl didn't find indentconfig.yaml or .indentconfig.yaml
+       see all possible locations: https://latexindentpl.readthedocs.io/en/latest/sec-appendices.html#indentconfig-options
+INFO:  YAML settings read: -l switch
+       Adding /Users/efesahin/.config/nvim/latexindent.yaml to YAML read paths
+INFO:  YAML settings, reading from the following files:
+       Reading USER settings from /Users/efesahin/.config/nvim/latexindent.yaml
+       ---
+       modifyLineBreaks:
+         specialBeginEnd:
+           displayMath:
+             SpecialBeginStartsOnOwnLine: '1'
+             SpecialBodyStartsOnOwnLine: '-1'
+             SpecialEndFinishesWithLineBreak: '1'
+             SpecialEndStartsOnOwnLine: '-1'
+           displayMathTeX:
+             SpecialBeginStartsOnOwnLine: '1'
+             SpecialBodyStartsOnOwnLine: '-1'
+             SpecialEndFinishesWithLineBreak: '1'
+             SpecialEndStartsOnOwnLine: '-1'
+         textWrapOptions:
+           blocksFollow:
+             other: \\begin\{[^}]*\}|\\\]|\\item(?:\h|\[)
+           columns: '80'
+
+INFO:  Output routine:
+       Not outputting to file; see -w and -o switches for more options.
+       --------------
+INFO:  Please direct all communication/issues to:
+       https://github.com/cmhughes/latexindent.pl
+       documentation: https://latexindentpl.readthedocs.io/en/latest/
