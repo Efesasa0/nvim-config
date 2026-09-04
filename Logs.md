@@ -16,3 +16,4 @@
 - 2026-07-18 - Added `lua/ltex_handlers.lua` with client-side handlers for `_ltex.addToDictionary`, `_ltex.hideFalsePositives`, `_ltex.disableRules`. Words/rules persist to `~/.config/nvim/ltex-cache/*.json` and are reloaded into ltex settings on startup. Fixes "command may require a client extension" error.
 - 2026-07-18 - Fixed grammar mode skip-ahead bug: was re-fetching the async LTeX diagnostic list on every navigation, which shifted the index. Now snapshots issues once at mode start and splices them out on a/d/i so the same index naturally advances to the next issue without skipping.
 - 2026-07-18 - Hid the `~` end-of-buffer markers by setting `fillchars.eob = ' '`.
+- 2026-07-18 - Added `<leader>ss` (save) and `<leader>sr` (restore) for per-directory sessions backed by `.nvim-session.vim` (built-in `:mksession`, no plugin).

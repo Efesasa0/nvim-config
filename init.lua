@@ -114,6 +114,19 @@ vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease window heig
 vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
 vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
 
+-- Sessions (per-directory, saved to .nvim-session.vim)
+vim.keymap.set("n", "<leader>ss", function()
+	vim.cmd("mksession! .nvim-session.vim")
+	vim.notify("Session saved: " .. vim.fn.getcwd() .. "/.nvim-session.vim")
+end, { desc = "Save session for cwd" })
+vim.keymap.set("n", "<leader>sr", function()
+	if vim.fn.filereadable(".nvim-session.vim") == 1 then
+		vim.cmd("source .nvim-session.vim")
+	else
+		vim.notify("No .nvim-session.vim in " .. vim.fn.getcwd(), vim.log.levels.WARN)
+	end
+end, { desc = "Restore session for cwd" })
+
 -- LaTeX
 vim.keymap.set("n", "<leader>ll", "<cmd>VimtexCompile<cr>", { desc = "Toggle LaTeX live compile (Skim)" })
 vim.keymap.set("n", "<leader>lr", function()
