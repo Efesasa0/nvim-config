@@ -2,3 +2,6 @@
 .nvimlog
 .work/
 .nvim-session.vim
+ltex-cache/
+indent.log
+*.log

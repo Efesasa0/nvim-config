@@ -412,7 +412,11 @@ return {
 					prepend_args = { "--line-length", "120" },
 				},
 				latexindent = {
-					prepend_args = { "-m", "-l", vim.fn.stdpath("config") .. "/latexindent.yaml" },
+					prepend_args = {
+						"-m",
+						"-l", vim.fn.stdpath("config") .. "/latexindent.yaml",
+						"-g", "/dev/null",
+					},
 				},
 				tex_flatten_dispmath = {
 					command = "perl",

@@ -225,6 +225,16 @@ end
 -- Autocommands
 local augroup = vim.api.nvim_create_augroup("UserConfig", { clear = true })
 
+-- Welcome buffer when nvim starts with no args
+vim.api.nvim_create_autocmd("VimEnter", {
+	group = augroup,
+	callback = function()
+		if vim.fn.argc() == 0 and vim.fn.line2byte("$") == -1 then
+			require("welcome").show()
+		end
+	end,
+})
+
 -- Return to last edit position
 vim.api.nvim_create_autocmd("BufReadPost", {
 	group = augroup,
