@@ -16,6 +16,7 @@ vim.opt.termguicolors = false
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.laststatus = 3
+vim.opt.fillchars:append({ eob = " " })
 vim.opt.guicursor = "n-v-c:block,i-ci-ve:ver25"
 vim.opt.wildmenu = true
 vim.opt.wildmode = "longest:full,full"
