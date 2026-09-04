@@ -17,3 +17,10 @@
 - 2026-07-18 - Fixed grammar mode skip-ahead bug: was re-fetching the async LTeX diagnostic list on every navigation, which shifted the index. Now snapshots issues once at mode start and splices them out on a/d/i so the same index naturally advances to the next issue without skipping.
 - 2026-07-18 - Hid the `~` end-of-buffer markers by setting `fillchars.eob = ' '`.
 - 2026-07-18 - Added `<leader>ss` (save) and `<leader>sr` (restore) for per-directory sessions backed by `.nvim-session.vim` (built-in `:mksession`, no plugin).
+- 2026-07-18 - Changed `<leader>T` to swap the current window's buffer with a persistent terminal buffer (and back via the alternate buffer). Layout and other windows stay intact; only the focused window flips between terminal and its previous buffer.
+- 2026-07-18 - Made `<leader>T` and `<C-hjkl>` work from inside terminal mode (they auto-exit terminal insert, then act) so navigation and toggling aren't blocked while the shell has focus.
+- 2026-07-18 - Removed the floating bottom terminal drawer and its `<Esc>`-to-close binding. Reassigned `<leader>t` to the current-window terminal toggle (previously `<leader>T`).
+- 2026-07-18 - Added full-span edge splits `<leader>H/J/K/L` (`topleft`/`botright` `vnew`/`new`) that open a new empty buffer spanning the full editor edge instead of only splitting the current window. Also added a `WinClosed` autocmd that re-equalizes remaining splits so closing a pane no longer leaves uneven column widths.
+- 2026-07-18 - Added `<leader>ws` window swap mode: highlights source window, uses `getcharstr` loop for `hjkl` nav + `<CR>` to swap the two windows' buffers or `<Esc>` to cancel. No temporary global keymaps.
+- 2026-07-18 - Grammar/window swap mode now also accepts `<C-hjkl>` (matches the global window-nav keymaps) alongside plain hjkl.
+- 2026-07-18 - Window swap mode paints two windows: source in green (DiffAdd) and the current nav target in orange (DiffChange), so the "you are here" indicator no longer depends on cursor visibility during the `getcharstr` block.

@@ -105,14 +105,92 @@ vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right buffer" })
 vim.keymap.set("n", "<leader>z", "<:only<CR>", { desc = "Close window" })
 vim.keymap.set("n", "<leader>x", "<cmd>close<cr>", { desc = "Close window" })
 
-vim.keymap.set("n", "<leader>|", ":vsplit<CR>", { desc = "Vertical split" })
-vim.keymap.set("n", "<leader>-", ":split<CR>", { desc = "Horizontal split" })
+vim.keymap.set("n", "<leader>|", ":vsplit<CR>", { desc = "Vertical split (current window)" })
+vim.keymap.set("n", "<leader>-", ":split<CR>", { desc = "Horizontal split (current window)" })
+-- Full-span edge splits: new empty buffer spanning the whole editor edge
+vim.keymap.set("n", "<leader>H", ":topleft vnew<CR>", { desc = "New buffer on far left (full height)" })
+vim.keymap.set("n", "<leader>L", ":botright vnew<CR>", { desc = "New buffer on far right (full height)" })
+vim.keymap.set("n", "<leader>K", ":topleft new<CR>", { desc = "New buffer on top (full width)" })
+vim.keymap.set("n", "<leader>J", ":botright new<CR>", { desc = "New buffer on bottom (full width)" })
 
 -- Window resizes
 vim.keymap.set("n", "<C-Up>", ":resize +2<CR>", { desc = "Increase window height" })
 vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease window height" })
 vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
 vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
+
+-- Window swap: pick current window, navigate with <C-hjkl>, <CR> to swap buffers
+vim.keymap.set("n", "<leader>ws", function()
+	local source = vim.api.nvim_get_current_win()
+	local source_buf = vim.api.nvim_win_get_buf(source)
+	local saved = {}
+	local function paint(win, hl)
+		if not saved[win] and vim.api.nvim_win_is_valid(win) then
+			saved[win] = vim.wo[win].winhighlight
+		end
+		if vim.api.nvim_win_is_valid(win) then
+			vim.wo[win].winhighlight = hl
+		end
+	end
+	local function unpaint(win)
+		if saved[win] and vim.api.nvim_win_is_valid(win) then
+			vim.wo[win].winhighlight = saved[win]
+		end
+		saved[win] = nil
+	end
+	local function cleanup()
+		for win, _ in pairs(saved) do
+			unpaint(win)
+		end
+	end
+	paint(source, "Normal:DiffAdd,NormalNC:DiffAdd") -- source = green
+	local cursor_win = source
+	local function repaint_cursor()
+		local w = vim.api.nvim_get_current_win()
+		if w == cursor_win then return end
+		if cursor_win ~= source then unpaint(cursor_win) end
+		cursor_win = w
+		if w ~= source then
+			paint(w, "Normal:DiffChange,NormalNC:DiffChange") -- target-hover = orange
+		end
+	end
+	local nav = {
+		[vim.keycode("<C-h>")] = "h",
+		[vim.keycode("<C-j>")] = "j",
+		[vim.keycode("<C-k>")] = "k",
+		[vim.keycode("<C-l>")] = "l",
+		h = "h", j = "j", k = "k", l = "l",
+	}
+	while true do
+		vim.cmd("redraw!")
+		vim.api.nvim_echo(
+			{ { "Swap: <C-hjkl> move (source=green, target=orange), <CR> swap, <Esc> cancel", "MoreMsg" } },
+			false,
+			{}
+		)
+		local ok, ch = pcall(vim.fn.getcharstr)
+		if not ok or ch == "\27" then
+			cleanup()
+			vim.api.nvim_echo({ { "Swap cancelled", "WarningMsg" } }, false, {})
+			return
+		elseif ch == "\r" then
+			local target = vim.api.nvim_get_current_win()
+			cleanup()
+			if target == source then
+				vim.api.nvim_echo({ { "Same window - nothing to swap", "WarningMsg" } }, false, {})
+				return
+			end
+			local target_buf = vim.api.nvim_win_get_buf(target)
+			vim.api.nvim_win_set_buf(source, target_buf)
+			vim.api.nvim_win_set_buf(target, source_buf)
+			vim.api.nvim_echo({ { "Swapped", "MoreMsg" } }, false, {})
+			return
+		elseif nav[ch] then
+			vim.cmd("wincmd " .. nav[ch])
+			repaint_cursor()
+		end
+	end
+end, { desc = "Enter window swap mode" })
 
 -- Sessions (per-directory, saved to .nvim-session.vim)
 vim.keymap.set("n", "<leader>ss", function()
@@ -218,6 +296,16 @@ vim.api.nvim_create_autocmd("VimResized", {
 	end,
 })
 
+-- Equalize remaining splits after one closes
+vim.api.nvim_create_autocmd("WinClosed", {
+	group = augroup,
+	callback = function()
+		vim.schedule(function()
+			vim.cmd("wincmd =")
+		end)
+	end,
+})
+
 -- Auto-reload files changed on disk
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
 	group = augroup,
@@ -287,62 +375,38 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
--- Floating terminal (bottom drawer)
-local terminal_state = { buf = nil, win = nil, is_open = false }
+-- Persistent terminal in current window (toggle to alt buffer)
+local win_terminal = { buf = nil }
 
-local function FloatingTerminal()
-	if terminal_state.is_open and vim.api.nvim_win_is_valid(terminal_state.win) then
-		vim.api.nvim_win_close(terminal_state.win, false)
-		terminal_state.is_open = false
+local function WinTerminal()
+	local cur_win = vim.api.nvim_get_current_win()
+	local cur_buf = vim.api.nvim_win_get_buf(cur_win)
+	if win_terminal.buf and cur_buf == win_terminal.buf then
+		vim.cmd("buffer #")
 		return
 	end
-
-	if not terminal_state.buf or not vim.api.nvim_buf_is_valid(terminal_state.buf) then
-		terminal_state.buf = vim.api.nvim_create_buf(false, true)
-		vim.api.nvim_buf_set_option(terminal_state.buf, "bufhidden", "hide")
-	end
-
-	local width = vim.o.columns
-	local height = math.floor(vim.o.lines * 0.4)
-	local row = vim.o.lines - height - 2
-
-	terminal_state.win = vim.api.nvim_open_win(terminal_state.buf, true, {
-		relative = "editor",
-		width = width,
-		height = height,
-		row = row,
-		col = 0,
-		style = "minimal",
-		border = "rounded",
-	})
-
-	vim.wo[terminal_state.win].number = false
-	vim.wo[terminal_state.win].relativenumber = false
-	vim.wo[terminal_state.win].signcolumn = "no"
-
-	local lines = vim.api.nvim_buf_get_lines(terminal_state.buf, 0, -1, false)
-	local has_terminal = false
-	for _, line in ipairs(lines) do
-		if line ~= "" then
-			has_terminal = true
-			break
-		end
-	end
-	if not has_terminal then
+	if win_terminal.buf and vim.api.nvim_buf_is_valid(win_terminal.buf) then
+		vim.api.nvim_win_set_buf(cur_win, win_terminal.buf)
+	else
+		vim.cmd("enew")
 		vim.fn.termopen(os.getenv("SHELL"))
+		win_terminal.buf = vim.api.nvim_get_current_buf()
 	end
-
-	terminal_state.is_open = true
 	vim.cmd("startinsert")
 end
 
-vim.keymap.set("n", "<leader>t", FloatingTerminal, { desc = "Toggle floating terminal" })
-vim.keymap.set("t", "<Esc>", function()
-	if terminal_state.is_open then
-		vim.api.nvim_win_close(terminal_state.win, false)
-		terminal_state.is_open = false
-	end
-end, { desc = "Close floating terminal" })
+vim.keymap.set("n", "<leader>t", WinTerminal, { desc = "Toggle terminal in current window" })
+vim.keymap.set("t", "<leader>t", function()
+	vim.cmd("stopinsert")
+	WinTerminal()
+end, { desc = "Toggle terminal in current window (from term mode)" })
+
+-- Terminal-mode window navigation (mirrors normal-mode <C-hjkl>)
+for _, dir in ipairs({ "h", "j", "k", "l" }) do
+	vim.keymap.set("t", "<C-" .. dir .. ">", "<C-\\><C-n><C-w>" .. dir, {
+		desc = "Terminal mode: move to " .. dir .. " window",
+	})
+end
 
 -- Plugins
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
