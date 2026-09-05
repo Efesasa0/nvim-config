@@ -210,6 +210,10 @@ vim.keymap.set("n", "<leader>ll", "<cmd>VimtexCompile<cr>", { desc = "Toggle LaT
 vim.keymap.set("n", "<leader>lr", function()
 	require("grammar_mode").toggle()
 end, { desc = "Toggle grammar review mode (ltex-ls)" })
+vim.keymap.set("n", "<leader>lm", function()
+	require("math_render").toggle()
+end, { desc = "Toggle inline math rendering (markdown)" })
+require("math_render").setup_autoupdate()
 
 -- Visual indentation
 vim.keymap.set("v", "<Tab>", ">gv", { desc = "Indent and reselect" })

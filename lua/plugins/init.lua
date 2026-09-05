@@ -545,4 +545,18 @@ return {
 			})
 		end,
 	},
+
+	-- Image protocol backend (Kitty graphics - works in Ghostty/Kitty/WezTerm)
+	{
+		"3rd/image.nvim",
+		build = false,
+		opts = {
+			backend = "kitty",
+			processor = "magick_cli",
+			max_width = 100,
+			max_height = 20,
+			max_height_window_percentage = 40,
+			window_overlap_clear_enabled = true,
+		},
+	},
 }
