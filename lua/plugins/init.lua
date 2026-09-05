@@ -390,6 +390,7 @@ return {
 			formatters_by_ft = {
 				lua = { "stylua" },
 				tex = { "latexindent", "tex_flatten_dispmath" },
+				markdown = { "prettier" },
 				python = function(bufnr)
 					local fname = vim.api.nvim_buf_get_name(bufnr)
 					if fname ~= "" then
@@ -427,9 +428,16 @@ return {
 					},
 					stdin = true,
 				},
+				prettier = {
+					prepend_args = {
+						"--print-width", "80",
+						"--prose-wrap", "always",
+						"--tab-width", "2",
+					},
+				},
 			},
 			format_on_save = {
-				timeout_ms = 500,
+				timeout_ms = 1500,
 				lsp_fallback = true,
 			},
 		},
