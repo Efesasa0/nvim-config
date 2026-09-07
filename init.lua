@@ -213,6 +213,9 @@ end, { desc = "Toggle grammar review mode (ltex-ls)" })
 vim.keymap.set("n", "<leader>lm", function()
 	require("math_render").toggle()
 end, { desc = "Toggle inline math rendering (markdown)" })
+vim.keymap.set("n", "<leader>f", function()
+	require("conform").format({ timeout_ms = 3000, lsp_fallback = true })
+end, { desc = "Format current buffer (manual)" })
 require("math_render").setup_autoupdate()
 
 -- Visual indentation
@@ -389,31 +392,62 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
--- Persistent terminal in current window (toggle to alt buffer)
-local win_terminal = { buf = nil }
+-- Floating terminal (bottom drawer, hovers over layout)
+local terminal_state = { buf = nil, win = nil, is_open = false }
 
-local function WinTerminal()
-	local cur_win = vim.api.nvim_get_current_win()
-	local cur_buf = vim.api.nvim_win_get_buf(cur_win)
-	if win_terminal.buf and cur_buf == win_terminal.buf then
-		vim.cmd("buffer #")
+local function FloatingTerminal()
+	if terminal_state.is_open and vim.api.nvim_win_is_valid(terminal_state.win) then
+		vim.api.nvim_win_close(terminal_state.win, false)
+		terminal_state.is_open = false
 		return
 	end
-	if win_terminal.buf and vim.api.nvim_buf_is_valid(win_terminal.buf) then
-		vim.api.nvim_win_set_buf(cur_win, win_terminal.buf)
-	else
-		vim.cmd("enew")
-		vim.fn.termopen(os.getenv("SHELL"))
-		win_terminal.buf = vim.api.nvim_get_current_buf()
+
+	if not terminal_state.buf or not vim.api.nvim_buf_is_valid(terminal_state.buf) then
+		terminal_state.buf = vim.api.nvim_create_buf(false, true)
+		vim.bo[terminal_state.buf].bufhidden = "hide"
 	end
+
+	local width = vim.o.columns
+	local height = math.floor(vim.o.lines * 0.4)
+	local row = vim.o.lines - height - 2
+
+	terminal_state.win = vim.api.nvim_open_win(terminal_state.buf, true, {
+		relative = "editor",
+		width = width,
+		height = height,
+		row = row,
+		col = 0,
+		style = "minimal",
+		border = "rounded",
+	})
+
+	vim.wo[terminal_state.win].number = false
+	vim.wo[terminal_state.win].relativenumber = false
+	vim.wo[terminal_state.win].signcolumn = "no"
+
+	local lines = vim.api.nvim_buf_get_lines(terminal_state.buf, 0, -1, false)
+	local has_terminal = false
+	for _, line in ipairs(lines) do
+		if line ~= "" then
+			has_terminal = true
+			break
+		end
+	end
+	if not has_terminal then
+		vim.fn.termopen(os.getenv("SHELL"))
+	end
+
+	terminal_state.is_open = true
 	vim.cmd("startinsert")
 end
 
-vim.keymap.set("n", "<leader>t", WinTerminal, { desc = "Toggle terminal in current window" })
-vim.keymap.set("t", "<leader>t", function()
-	vim.cmd("stopinsert")
-	WinTerminal()
-end, { desc = "Toggle terminal in current window (from term mode)" })
+vim.keymap.set("n", "<leader>t", FloatingTerminal, { desc = "Toggle floating terminal" })
+vim.keymap.set("t", "<Esc>", function()
+	if terminal_state.is_open and vim.api.nvim_win_is_valid(terminal_state.win) then
+		vim.api.nvim_win_close(terminal_state.win, false)
+		terminal_state.is_open = false
+	end
+end, { desc = "Close floating terminal" })
 
 -- Terminal-mode window navigation (mirrors normal-mode <C-hjkl>)
 for _, dir in ipairs({ "h", "j", "k", "l" }) do
