@@ -313,15 +313,9 @@ vim.api.nvim_create_autocmd("VimResized", {
 	end,
 })
 
--- Equalize remaining splits after one closes
-vim.api.nvim_create_autocmd("WinClosed", {
-	group = augroup,
-	callback = function()
-		vim.schedule(function()
-			vim.cmd("wincmd =")
-		end)
-	end,
-})
+-- Manual equalize on demand (was auto on WinClosed, but that wiped resizes
+-- whenever any floating picker opened/closed).
+vim.keymap.set("n", "<leader>=", "<C-w>=", { desc = "Equalize window sizes" })
 
 -- Auto-reload files changed on disk
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
