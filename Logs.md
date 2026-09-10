@@ -34,6 +34,7 @@
 - 2026-09-07 - `WinClosed` auto-equalize was firing when Telescope/picker floats closed, wiping manual resizes. Now tracks floating status on `WinNew` and only equalizes when a non-floating window closes.
 - 2026-09-07 - Removed the `WinClosed` auto-equalize entirely - `WinNew`-based floating detection was racy (current window at WinNew moment isn't reliably the new one) so resizes kept getting wiped. Added `<leader>=` (maps to `<C-w>=`) as an explicit on-demand equalize instead.
 - 2026-09-07 - Updated welcome screen with the three keymaps added since it was made: `<leader>=` (Equalize sizes), `<leader>f` (Format buffer), `<leader>lm` (Math render).
+- 2026-09-10 - Reverted the custom markdown token highlights (`syntax match` and extmark attempts both failed to render in practice). Removed `lua/md_highlights.lua` and its `require` in `init.lua`.
 - 2026-07-18 - Added `<leader>ws` window swap mode: highlights source window, uses `getcharstr` loop for `hjkl` nav + `<CR>` to swap the two windows' buffers or `<Esc>` to cancel. No temporary global keymaps.
 - 2026-07-18 - Grammar/window swap mode now also accepts `<C-hjkl>` (matches the global window-nav keymaps) alongside plain hjkl.
 - 2026-07-18 - Window swap mode paints two windows: source in green (DiffAdd) and the current nav target in orange (DiffChange), so the "you are here" indicator no longer depends on cursor visibility during the `getcharstr` block.
