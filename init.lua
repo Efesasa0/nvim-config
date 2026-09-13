@@ -193,9 +193,21 @@ vim.keymap.set("n", "<leader>ws", function()
 end, { desc = "Enter window swap mode" })
 
 -- Sessions (per-directory, saved to .nvim-session.vim)
+-- Portable across machines: absolute cwd is rewritten to a relative prefix on save,
+-- so a mirrored tree at a different absolute root (e.g., mac vs EC2) restores fine.
 vim.keymap.set("n", "<leader>ss", function()
+	local cwd = vim.fn.getcwd()
 	vim.cmd("mksession! .nvim-session.vim")
-	vim.notify("Session saved: " .. vim.fn.getcwd() .. "/.nvim-session.vim")
+	local path = cwd .. "/.nvim-session.vim"
+	local ok, lines = pcall(vim.fn.readfile, path)
+	if ok then
+		local escaped = vim.pesc(cwd)
+		for i, line in ipairs(lines) do
+			lines[i] = line:gsub(escaped, ".")
+		end
+		vim.fn.writefile(lines, path)
+	end
+	vim.notify("Session saved (portable): " .. path)
 end, { desc = "Save session for cwd" })
 vim.keymap.set("n", "<leader>sr", function()
 	if vim.fn.filereadable(".nvim-session.vim") == 1 then
