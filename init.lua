@@ -210,10 +210,31 @@ vim.keymap.set("n", "<leader>ss", function()
 	vim.notify("Session saved (portable): " .. path)
 end, { desc = "Save session for cwd" })
 vim.keymap.set("n", "<leader>sr", function()
-	if vim.fn.filereadable(".nvim-session.vim") == 1 then
-		vim.cmd("source .nvim-session.vim")
-	else
+	if vim.fn.filereadable(".nvim-session.vim") ~= 1 then
 		vim.notify("No .nvim-session.vim in " .. vim.fn.getcwd(), vim.log.levels.WARN)
+		return
+	end
+	local lines = vim.fn.readfile(".nvim-session.vim")
+	-- auto-heal: find any `cd <absolute-path>` and strip that prefix from every line
+	local session_cwd
+	for _, line in ipairs(lines) do
+		local m = line:match("^cd%s+(/[^%s]+)")
+		if m then
+			session_cwd = m
+			break
+		end
+	end
+	if session_cwd and session_cwd ~= vim.fn.getcwd() then
+		local escaped = vim.pesc(session_cwd)
+		for i, line in ipairs(lines) do
+			lines[i] = line:gsub(escaped, ".")
+		end
+		local tmp = vim.fn.tempname()
+		vim.fn.writefile(lines, tmp)
+		vim.cmd("source " .. vim.fn.fnameescape(tmp))
+		vim.fn.delete(tmp)
+	else
+		vim.cmd("source .nvim-session.vim")
 	end
 end, { desc = "Restore session for cwd" })
 
