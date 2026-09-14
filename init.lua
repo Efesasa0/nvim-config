@@ -215,19 +215,33 @@ vim.keymap.set("n", "<leader>sr", function()
 		return
 	end
 	local lines = vim.fn.readfile(".nvim-session.vim")
-	-- auto-heal: find any `cd <absolute-path>` and strip that prefix from every line
-	local session_cwd
+	-- auto-heal: find the session's cd target (either `~/foo` or absolute) and strip it
+	local raw
 	for _, line in ipairs(lines) do
-		local m = line:match("^cd%s+(/[^%s]+)")
+		local m = line:match("^l?cd!?%s+(%S+)")
 		if m then
-			session_cwd = m
+			raw = m
 			break
 		end
 	end
-	if session_cwd and session_cwd ~= vim.fn.getcwd() then
-		local escaped = vim.pesc(session_cwd)
+	local current = vim.fn.getcwd()
+	local heal = false
+	local prefixes = {}
+	if raw then
+		local expanded = vim.fn.expand(raw)
+		if expanded ~= current then
+			heal = true
+			table.insert(prefixes, raw)
+			if expanded ~= raw then
+				table.insert(prefixes, expanded)
+			end
+		end
+	end
+	if heal then
 		for i, line in ipairs(lines) do
-			lines[i] = line:gsub(escaped, ".")
+			for _, p in ipairs(prefixes) do
+				lines[i] = lines[i]:gsub(vim.pesc(p), ".")
+			end
 		end
 		local tmp = vim.fn.tempname()
 		vim.fn.writefile(lines, tmp)
