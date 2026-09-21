@@ -24,8 +24,9 @@ local lines = {
 	"",
 	"    EDITING                            LATEX  /  HTML  /  MD",
 	"    <leader>p      Paste no-yank       <leader>ll     Live render",
-	"    <leader>f      Format buffer       <leader>lr     Grammar review",
-	"    Tab / S-Tab    Indent (visual)     <leader>lm     Math render",
+	"    <leader>fm     Format buffer       <leader>lr     Grammar review",
+	"    <leader>ci     Copy as SVG (vis)   <leader>lm     Math render",
+	"    Tab / S-Tab    Indent (visual)",
 	"",
 	"",
 	"                        press  q  or  <Esc>  to dismiss",
@@ -44,11 +45,12 @@ function M.show()
 	vim.bo[buf].modified = false
 
 	vim.api.nvim_set_current_buf(buf)
-	vim.wo.number = false
-	vim.wo.relativenumber = false
-	vim.wo.cursorline = false
-	vim.wo.signcolumn = "no"
-	vim.wo.list = false
+	local wo = vim.wo[0][0]
+	wo.number = false
+	wo.relativenumber = false
+	wo.cursorline = false
+	wo.signcolumn = "no"
+	wo.list = false
 
 	local function dismiss()
 		vim.cmd("enew")

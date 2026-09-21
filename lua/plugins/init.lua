@@ -391,6 +391,8 @@ return {
 				lua = { "stylua" },
 				tex = { "latexindent", "tex_flatten_dispmath" },
 				markdown = { "prettier" },
+				html = { "prettier" },
+				css = { "prettier" },
 				python = function(bufnr)
 					local fname = vim.api.nvim_buf_get_name(bufnr)
 					if fname ~= "" then
@@ -424,7 +426,9 @@ return {
 					args = {
 						"-0777",
 						"-pe",
-						[[s{\$\$(.*?)\$\$}{ my $c=$1; $c=~s/\s+/ /g; $c=~s/^\s+|\s+$//g; "\$\$ $c \$\$" }ges]],
+						-- comments match first and pass through untouched, so a $$ inside a
+						-- comment cannot pair with a real block and swallow the lines between
+						[[s{(?<!\\)%[^\n]*|(?<!\\)\$\$(.*?)(?<!\\)\$\$}{ defined $1 ? do { my $c=$1; $c=~s/\s+/ /g; $c=~s/^\s+|\s+$//g; "\$\$ $c \$\$" } : $& }ges]],
 					},
 					stdin = true,
 				},
@@ -433,15 +437,11 @@ return {
 						"--print-width", "80",
 						"--prose-wrap", "always",
 						"--tab-width", "2",
+						"--html-whitespace-sensitivity", "ignore",
 					},
 				},
 			},
-			format_on_save = function(bufnr)
-				if vim.bo[bufnr].filetype == "markdown" then
-					return nil -- markdown formats only on manual trigger (<leader>f)
-				end
-				return { timeout_ms = 1500, lsp_fallback = true }
-			end,
+			-- No format-on-save. Formatting is opt-in via <leader>fm (manual, per-buffer).
 		},
 	},
 

@@ -28,19 +28,7 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
 })
 
 local function get_fg_color()
-	if vim.g.math_render_fg then
-		return vim.g.math_render_fg
-	end
-	if vim.o.termguicolors then
-		local hl = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-		if hl and hl.fg then
-			local r = bit.rshift(bit.band(hl.fg, 0xFF0000), 16) / 255
-			local g = bit.rshift(bit.band(hl.fg, 0x00FF00), 8) / 255
-			local b = bit.band(hl.fg, 0x0000FF) / 255
-			return string.format("rgb %.3f %.3f %.3f", r, g, b)
-		end
-	end
-	return "White"
+	return vim.g.math_render_fg or "Black"
 end
 
 local function compile(content)

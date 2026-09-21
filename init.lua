@@ -252,6 +252,50 @@ vim.keymap.set("n", "<leader>sr", function()
 	end
 end, { desc = "Restore session for cwd" })
 
+-- Visual selection → freeze SVG (system font, no glyph embed) → svgo → pbcopy
+vim.keymap.set("x", "<leader>ci", function()
+	local save_reg = vim.fn.getreg("z")
+	local save_type = vim.fn.getregtype("z")
+	-- gv reselects the last visual range (keymap callback runs in normal mode),
+	-- then "zy yanks it into register z
+	vim.cmd('normal! gv"zy')
+	local selection = vim.fn.getreg("z")
+	vim.fn.setreg("z", save_reg, save_type)
+	if selection == "" then
+		vim.notify("Nothing selected", vim.log.levels.WARN)
+		return
+	end
+	local _, nl_count = selection:gsub("\n", "\n")
+	vim.notify(string.format("captured %d bytes across %d line(s)", #selection, nl_count + 1))
+	local ft = vim.bo.filetype
+	local lang = (ft ~= "" and ft) or "text"
+	local raw = vim.fn.tempname() .. ".svg"
+	local opt = vim.fn.tempname() .. ".svg"
+	local freeze_cmd = string.format(
+		"freeze --language %s --theme catppuccin-latte --font.family Menlo --output %s -",
+		vim.fn.shellescape(lang),
+		vim.fn.shellescape(raw)
+	)
+	local freeze_out = vim.fn.system(freeze_cmd, selection)
+	if vim.v.shell_error ~= 0 then
+		pcall(vim.fn.delete, raw)
+		vim.notify("freeze failed: " .. freeze_out, vim.log.levels.ERROR)
+		return
+	end
+	local svgo_out = vim.fn.system(string.format("svgo %s -o %s", vim.fn.shellescape(raw), vim.fn.shellescape(opt)))
+	if vim.v.shell_error ~= 0 then
+		-- fall back to raw freeze output if svgo bails
+		opt = raw
+	end
+	local size = vim.fn.getfsize(opt)
+	vim.fn.system("pbcopy < " .. vim.fn.shellescape(opt))
+	pcall(vim.fn.delete, raw)
+	if opt ~= raw then
+		pcall(vim.fn.delete, opt)
+	end
+	vim.notify(string.format("SVG copied to clipboard (%s, %d bytes)", lang, size))
+end, { desc = "Copy selection as SVG image to clipboard" })
+
 -- LaTeX
 vim.keymap.set("n", "<leader>ll", "<cmd>VimtexCompile<cr>", { desc = "Toggle LaTeX live compile (Skim)" })
 vim.keymap.set("n", "<leader>lr", function()
@@ -260,8 +304,26 @@ end, { desc = "Toggle grammar review mode (ltex-ls)" })
 vim.keymap.set("n", "<leader>lm", function()
 	require("math_render").toggle()
 end, { desc = "Toggle inline math rendering (markdown)" })
-vim.keymap.set("n", "<leader>f", function()
-	require("conform").format({ timeout_ms = 3000, lsp_fallback = true })
+vim.keymap.set("n", "<leader>fm", function()
+	local conform = require("conform")
+	local bufnr = vim.api.nvim_get_current_buf()
+	local ft = vim.bo[bufnr].filetype
+	local available = conform.list_formatters(bufnr)
+	if #available == 0 then
+		vim.notify("No formatter for filetype '" .. ft .. "'", vim.log.levels.WARN)
+		return
+	end
+	local names = {}
+	for _, f in ipairs(available) do
+		table.insert(names, f.name .. (f.available and "" or " (missing)"))
+	end
+	conform.format({ bufnr = bufnr, timeout_ms = 3000, lsp_fallback = true }, function(err)
+		if err then
+			vim.notify("Format failed: " .. tostring(err), vim.log.levels.ERROR)
+		else
+			vim.notify("Formatted with: " .. table.concat(names, ", "))
+		end
+	end)
 end, { desc = "Format current buffer (manual)" })
 require("math_render").setup_autoupdate()
 
@@ -407,6 +469,8 @@ vim.api.nvim_create_autocmd("FileType", {
 	group = augroup,
 	pattern = "markdown",
 	callback = function()
+		vim.opt_local.number = false
+		vim.opt_local.relativenumber = false
 		vim.opt_local.textwidth = 80
 		vim.opt_local.wrap = true
 		vim.opt_local.linebreak = true
@@ -419,6 +483,18 @@ vim.api.nvim_create_autocmd("FileType", {
 	pattern = "tex",
 	callback = function()
 		vim.opt_local.textwidth = 80
+		vim.opt_local.wrap = true
+		vim.opt_local.linebreak = true
+		vim.opt_local.formatoptions = vim.opt_local.formatoptions + "t"
+	end,
+})
+
+-- HTML text width and wrapping
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup,
+	pattern = "html",
+	callback = function()
+		vim.opt_local.textwidth = 100
 		vim.opt_local.wrap = true
 		vim.opt_local.linebreak = true
 		vim.opt_local.formatoptions = vim.opt_local.formatoptions + "t"
