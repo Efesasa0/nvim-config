@@ -63,3 +63,7 @@ https://github.com/user-attachments/assets/e0478efb-6f9d-451a-baf8-f97cd65b6829
 `<leader>ll` live render HTML in the browser, reloads on save, again to stop.
 
 https://github.com/user-attachments/assets/9bcd22ae-32d5-4327-81a2-cf8e66844df9
+
+## License
+
+[MIT](LICENSE)
