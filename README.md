@@ -66,4 +66,4 @@ https://github.com/user-attachments/assets/9bcd22ae-32d5-4327-81a2-cf8e66844df9
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) Do whatever you like.
