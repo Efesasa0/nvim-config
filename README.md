@@ -20,7 +20,7 @@ The current config is based on [lazy.nvim](https://github.com/folke/lazy.nvim).
 `<leader>ff` find files, `<leader>fg` grep, `<leader>e` file tree, `/` search
 with centered `n`/`N`, `<leader>a` select all, `<leader><space>` copy path.
 
-https://github.com/Efesasa0/nvim-config/blob/main/content/01.mp4
+https://github.com/user-attachments/assets/df9d17c9-f463-4fcc-a241-13e9a67860ab
 
 ### Splits, moving, swapping
 
@@ -28,14 +28,14 @@ https://github.com/Efesasa0/nvim-config/blob/main/content/01.mp4
 `<leader>H/J/K/L` new edge buffer, `<leader>ws` swap mode, `<leader>x` close,
 `<leader>z` close others.
 
-https://github.com/Efesasa0/nvim-config/blob/main/content/02.mp4
+https://github.com/user-attachments/assets/ab0dce13-4200-4c08-b231-35d9cbdfff00
 
 ### Terminal and sessions
 
 `<leader>t` floating terminal that keeps running when hidden, `<leader>ss` save
 session for the folder, `<leader>sr` restore it.
 
-https://github.com/Efesasa0/nvim-config/blob/main/content/03.mp4
+https://github.com/user-attachments/assets/ca5cdd4e-f19e-42b6-bb31-48136f4729c8
 
 ### Diagnostics, formatting, copy as image
 
@@ -43,23 +43,23 @@ https://github.com/Efesasa0/nvim-config/blob/main/content/03.mp4
 clipboard, `Tab`/`S-Tab` indent in visual mode, `<leader>ci` copy selection as
 SVG.
 
-https://github.com/Efesasa0/nvim-config/blob/main/content/04.mp4
+https://github.com/user-attachments/assets/db8d7d81-f632-4486-96a1-74f314fb3b15
 
 ### Live PDF and grammar review
 
 `<leader>ll` live compile to Skim, `<leader>lr` grammar review (`a` accept, `n`
 next), `<leader>fm` format and flatten `$$` blocks.
 
-https://github.com/Efesasa0/nvim-config/blob/main/content/05.mp4
+https://github.com/user-attachments/assets/dc11cf48-cc1e-4694-b562-364682ded338
 
 ### Inline math rendering
 
 `<leader>lm` render `$$` formulas inline, re-renders on save.
 
-https://github.com/Efesasa0/nvim-config/blob/main/content/06.mp4
+https://github.com/user-attachments/assets/e0478efb-6f9d-451a-baf8-f97cd65b6829
 
 ### Live browser preview
 
 `<leader>ll` live render HTML in the browser, reloads on save, again to stop.
 
-https://github.com/Efesasa0/nvim-config/blob/main/content/07.mp4
+https://github.com/user-attachments/assets/9bcd22ae-32d5-4327-81a2-cf8e66844df9
