@@ -12,8 +12,8 @@ git clone https://github.com/Efesasa0/nvim-config ~/.config/nvim
 Then, install the dependencies via Homebrew. iTerm2 can be swapped with
 [kitty](https://sw.kovidgoyal.net/kitty/) or [Ghostty](https://ghostty.org).
 Skim is the PDF viewer used for live LaTeX rendering. ImageMagick is used by
-`image.nvim` to draw inline math, and the Nerd Font provides the file icons
-(set it as your terminal font afterwards).
+`image.nvim` to draw inline math, and the Nerd Font provides the file icons (set
+it as your terminal font afterwards).
 
 ```bash
 brew install \
@@ -33,8 +33,8 @@ brew install --cask \
   font-jetbrains-mono-nerd-font
 ```
 
-Tree-sitter parsers and some plugins are compiled natively, so Apple's
-compiler tools are needed too.
+Tree-sitter parsers and some plugins are compiled natively, so Apple's compiler
+tools are needed too.
 
 ```bash
 xcode-select --install
@@ -47,9 +47,9 @@ npm install -g live-server svgo
 brew install charmbracelet/tap/freeze
 ```
 
-Then TeX. `latexmk` drives VimTeX compiles, `dvipng`, `standalone` and
-`preview` are used by inline math rendering (`<leader>lm`). `latexindent` comes
-from Homebrew since that build does not need extra Perl modules.
+Then TeX. `latexmk` drives VimTeX compiles, `dvipng`, `standalone` and `preview`
+are used by inline math rendering (`<leader>lm`). `latexindent` comes from
+Homebrew since that build does not need extra Perl modules.
 
 ```bash
 brew install --cask basictex
@@ -158,8 +158,8 @@ For LaTeX, install TeX Live with `latexmk`, `latexindent` and `dvipng`.
 sudo apt install -y texlive-latex-extra texlive-extra-utils latexmk dvipng
 ```
 
-Note that `<leader>ci` copies through `pbcopy` and the LaTeX viewer is Skim,
-so both are macOS-only for now.
+Note that `<leader>ci` copies through `pbcopy` and the LaTeX viewer is Skim, so
+both are macOS-only for now.
 
 Launch nvim in any project directory, let Lazy, Mason and Tree-sitter finish,
 then install the formatters.
